@@ -343,7 +343,7 @@ func (rule *LexicalRule) IsSatisfied(s *Scanner, t *Token) bool {
 	}
 	if rule.must_be_true != nil {
 		if rule.must_be_true(s, t) == false {
-			//fmt.Printf("%s fails %s because of must_be_true\n",t.AsString(), TokenTypeToString(rule.t))
+			s.Debugs(fmt.Sprintf("%s fails %s because of must_be_true\n", t.AsString(), TokenTypeToString(rule.t)))
 			return false
 		}
 	}
@@ -351,7 +351,7 @@ func (rule *LexicalRule) IsSatisfied(s *Scanner, t *Token) bool {
 	for i, cc := range t.literal {
 		if i == 0 && len(rule.starts_with) > 0 {
 			if InSlice(rule.starts_with, cc) == false {
-				//fmt.Printf("%s fails %s because of starts_with\n",t.AsString(), TokenTypeToString(rule.t))
+				s.Debugs(fmt.Sprintf("%s fails %s because of starts_with\n", t.AsString(), TokenTypeToString(rule.t)))
 				return false
 			} else {
 				continue
@@ -359,7 +359,7 @@ func (rule *LexicalRule) IsSatisfied(s *Scanner, t *Token) bool {
 		}
 		if i == l_len && len(rule.ends_with) > 0 {
 			if InSlice(rule.ends_with, cc) == false {
-				//fmt.Printf("%s fails %s because of ends_with\n",t.AsString(), TokenTypeToString(rule.t))
+				s.Debugs(fmt.Sprintf("%s fails %s because of ends_with\n", t.AsString(), TokenTypeToString(rule.t)))
 				return false
 			} else {
 				continue
@@ -367,13 +367,13 @@ func (rule *LexicalRule) IsSatisfied(s *Scanner, t *Token) bool {
 		}
 		if len(rule.chars_in) > 0 {
 			if InSlice(rule.chars_in, cc) == false {
-				//fmt.Printf("%s fails %s because of chars_in\n",t.AsString(), TokenTypeToString(rule.t))
+				s.Debugs(fmt.Sprintf("%s fails %s because of chars_in\n", t.AsString(), TokenTypeToString(rule.t)))
 				return false
 			}
 		}
 		if len(rule.chars_not_in) > 0 {
 			if InSlice(rule.chars_not_in, cc) == true {
-				//fmt.Printf("%s fails %s because of chars_not_in\n",t.AsString(), TokenTypeToString(rule.t))
+				s.Debugs(fmt.Sprintf("%s fails %s because of chars_not_in\n", t.AsString(), TokenTypeToString(rule.t)))
 				return false
 			}
 		}
@@ -385,7 +385,7 @@ func (rule *LexicalRule) IsSatisfied(s *Scanner, t *Token) bool {
 func (s *Scanner) Classify(t *Token) {
 	for _, rule := range s.rules {
 		if rule.IsSatisfied(s, t) {
-			//fmt.Printf("Classify matched %s\n",TokenTypeToString(rule.t))
+			s.Debugs(fmt.Sprintf("Classify matched %s\n", TokenTypeToString(rule.t)))
 			t.of_type = rule.t
 			return
 		}
@@ -393,7 +393,7 @@ func (s *Scanner) Classify(t *Token) {
 	}
 }
 func (s *Scanner) SetSource(r *bufio.Reader) {
-	//fmt.Printf("Setting source\n")
+	s.Debugs("Setting source\n")
 	s.src = r
 }
 func (s *Scanner) LastToken() *Token {
@@ -553,7 +553,7 @@ func (s *Scanner) ConsumeWhiteSpace() {
 }
 func (s *Scanner) NextChar() {
 	r, _, err := s.src.ReadRune()
-	//fmt.Printf("r = '%c'\n",r)
+	s.Debugs(fmt.Sprintf("r = '%c'\n", r))
 	s.col = s.col + 1
 	if r == '\n' {
 		s.row = s.row + 1
