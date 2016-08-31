@@ -6,4 +6,4 @@ Gomore is much less than Less, it is aimed to be a fast and simple css parser th
 
 It is also written in go-lang, not JS (node.js), which makes it much more friendly and fast to use, as it's possible to crosscompile executables.
 
-Gomore is intended to be a library that I will use with my other project, Hyde.
+Gomore is intended to be a library that I will use with my other project, Hyde: https://github.com/jasonknight/hyde
