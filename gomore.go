@@ -38,21 +38,17 @@ const (
 	T_LT
 	T_EQ
 	T_DIV
-
-	// Advanced types
-	T_STATEMENT
-	T_TUPLE
 )
 
 type Validator func(s *Scanner, t *Token) bool
 type LexicalRule struct {
-	t            int
-	chars_in     []rune
-	chars_not_in []rune
-	starts_with  []rune
-	ends_with    []rune
-	must_be_true Validator
-	reclassifier Validator
+	t            int // what we will set of_type to
+	chars_in     []rune // list for inclusion
+	chars_not_in []rune // list for exclusion
+	starts_with  []rune // must begin with
+	ends_with    []rune // must end with
+	must_be_true Validator // A general purpose validator
+	reclassifier Validator // A func to possibly reclassify
 }
 
 type SyntacticRule struct {
@@ -96,16 +92,23 @@ type SyntacticRule struct {
 
 }
 type Token struct {
-	literal                []rune
-	of_type                int
-	col                    int
-	row                    int
-	needs_interpolation    bool
-	parent, next, previous *Token
-	children               []*Token
+	literal                []rune // everything is kept as a rune array
+	of_type                int // the T_XX type
+	col                    int // the column, for error reporting
+	row                    int // the row, for error reporting
+	needs_interpolation    bool // if a string is detected to contain variables
+	parent, next, previous *Token // overkill, but heh
+	children               []*Token // possibly not used
+}
+type GomoreError struct {
+    msg string
+    code int
+    row,col int
 }
 type Scanner struct {
 	ch           rune
+    nch          rune
+    lch          rune
 	col          int
 	row          int
 	tokens       []*Token
@@ -113,6 +116,7 @@ type Scanner struct {
 	rules        []LexicalRule
 	syntax_rules []SyntacticRule
 	debug        bool
+    warnings, errors []*GomoreError
 }
 
 func TokenTypeToString(i int) string {
@@ -559,6 +563,9 @@ func (s *Scanner) NextChar() {
 		s.row = s.row + 1
 		s.col = 0
 	}
+    s.lch = s.ch
+    nr,_ := s.src.Peek(3)
+    s.nch,width = utf8.DecodeRuneInString(string(nr[0:]))
 	s.ch = r
 	if err != nil {
 		s.ch = 0
