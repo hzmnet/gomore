@@ -56,3 +56,41 @@ There is no special way to define a snippet, just give it a name that won't be u
 
 The design of the system is such that duplication is in most cases avoided. Notice that `border-radius` is not duplicated.
 
+Nesting works as expected, also variables are defined at the block level.
+
+```css
+$color = #fff;
+#header {
+    color: $color;
+    $color = red;
+    .notice {
+        color: $color;
+    }
+}
+h1 {
+    background-color: #333;
+    color: $color;
+}
+
+```
+
+Will produce:
+
+```css
+#header {
+    color: #fff;
+}
+#header .notice {
+    color: red;
+}
+h1 {
+    background-color: #333;
+    color: #fff;
+}
+
+```
+
+This is because language elements can appear anywhere in the text, and the
+current block is always a new context linked to the next highest, so variables are defined in the nearest context, but found all the way up the context chain. This is pretty SOP.
+
+
